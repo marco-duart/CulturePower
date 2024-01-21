@@ -5,51 +5,27 @@ class UserRepository {
   constructor(private model: typeof User) {}
 
   async create(data: CreateUserDTO): Promise<IUser> {
-    const createdUser = await this.model.create(data);
-    if (!createdUser) {
-      console.log("Tratar Erro")
-    }
-    return createdUser;
+    return await this.model.create(data);
   }
 
   async findById(id: string): Promise<IUser | null> {
-    const user = await this.model.findById(id).exec();
-    if (!user) {
-      console.log("Tratar Erro")
-    }
-    return user;
+    return await this.model.findById(id).exec();
   }
 
   async findAll(): Promise<IUser[]> {
-    const users = await this.model.find({ deletedAt: null }).exec();
-    if (!users || users.length === 0) {
-      console.log("Tratar Erro")
-    }
-    return users;
+    return await await this.model.find({ deletedAt: null }).exec();
   }
 
   async findByEmail(email: string): Promise<IUser | null> {
-    const user = await this.model.findOne({ email }).exec();
-    if (!user) {
-      console.log("Tratar Erro")
-    }
-    return user;
+    return await this.model.findOne({ email }).exec();
   }
 
   async update(id: string, data: Partial<UpdateUserDTO>): Promise<IUser | null> {
-    const updatedUser = await this.model.findByIdAndUpdate(id, { ...data }, { new: true }).exec();
-    if (!updatedUser) {
-      console.log("Tratar Erro")
-    }
-    return updatedUser;
+    return await this.model.findByIdAndUpdate(id, { ...data }, { new: true }).exec();
   }
 
   async softDelete(id: string): Promise<IUser | null> {
-    const deletedUser = await this.model.findByIdAndUpdate(id, { deletedAt: new Date() }, { new: true }).exec();
-    if (!deletedUser) {
-      console.log("Tratar Erro")
-    }
-    return deletedUser
+    return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() }, { new: true }).exec();
   }
 }
 
