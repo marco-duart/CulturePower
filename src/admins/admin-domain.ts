@@ -2,11 +2,11 @@ import { Schema, model, Document } from "mongoose";
 
 export interface IAdmin extends Document {
   name: string;
-  email: number;
-  password: number;
+  email: string;
+  password: string;
 }
 
-export const AdminSchema = new Schema(
+const AdminSchema = new Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },

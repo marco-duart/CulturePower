@@ -5,11 +5,7 @@ import UserRepository from "./user-repository";
 
 
 class UserService {
-    private repository: UserRepository;
-  
-    constructor(repository: UserRepository) {
-      this.repository = repository;
-    }
+    constructor(private repository: UserRepository) {}
   
     async create(data: CreateUserDTO): Promise<IUser> {
       const userAlreadyExists = await this.repository.findByEmail(data.email)
