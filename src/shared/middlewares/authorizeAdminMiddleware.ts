@@ -16,8 +16,13 @@ export function authorizeAdminMiddleware(req: Request, res: Response, next: Next
 
   try {
     const decodedToken = verify(token, env.JWT_SECRET_KEY)
-    if(decodedToken && decodedToken.hasOwnProperty("userType")) {
-      
+    if(!decodedToken || !decodedToken.hasOwnProperty("userType")) {
+      console.log(decodedToken)
+      return res.status(401).json({
+        error: true,
+        message: "Unauthorized",
+        status: 401
+      })
     }
   } catch (error) {
     return res.status(401).json({
