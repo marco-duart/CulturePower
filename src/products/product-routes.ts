@@ -1,7 +1,7 @@
 import { Router } from "express"
 import { ProductModule } from "./index"
 import { logMiddleware } from "../shared/middlewares/logMiddleware"
-import { authorizationMiddleware } from "../shared/middlewares/authorizationMiddleware"
+import { authorizationMiddleware } from "../shared/middlewares/authenticateUserMiddleware"
 
 const { controller } = ProductModule.make()
 

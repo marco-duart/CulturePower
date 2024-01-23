@@ -13,7 +13,7 @@ class UserRepository {
   }
 
   async findAll(): Promise<IUser[]> {
-    return await await this.model.find({ deletedAt: null }).exec();
+    return await this.model.find({ deletedAt: null }).exec();
   }
 
   async findByEmail(email: string): Promise<IUser | null> {

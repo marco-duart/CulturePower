@@ -3,8 +3,10 @@ import { sign } from "jsonwebtoken";
 
 import UserRepository from "../users/user-repository";
 import AdminRepository from "../admins/admin-repository";
+import { Admin } from "../admins/admin-domain";
 import { AuthDTO } from "./auth-dto";
 import { env } from "../configs/env";
+
 
 export class AuthService {
     constructor(private userRepository: UserRepository | AdminRepository) {}
@@ -22,7 +24,7 @@ export class AuthService {
             return
         }
 
-        const payload = { id: user.id, email: user.email }
+        const payload = { id: user.id, email: user.email, userType: user instanceof Admin ? "admin" : "user" }
         const secretKey = env.JWT_SECRET_KEY;
         const options = { expiresIn: "5h" }
 

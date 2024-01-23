@@ -13,7 +13,7 @@ class AdminRepository {
   }
 
   async findAll(): Promise<IAdmin[]> {
-    return await await this.model.find({ deletedAt: null }).exec();
+    return await this.model.find({ deletedAt: null }).exec();
   }
 
   async findByEmail(email: string): Promise<IAdmin | null> {

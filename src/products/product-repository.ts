@@ -13,7 +13,7 @@ class ProductRepository {
   }
 
   async findAll(): Promise<IProduct[]> {
-    return await await this.model.find({ deletedAt: null }).exec();
+    return await this.model.find({ deletedAt: null }).exec();
   }
 
   async update(id: string, data: Partial<UpdateProductDTO>): Promise<IProduct | null> {
