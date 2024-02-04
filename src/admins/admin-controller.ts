@@ -11,7 +11,10 @@ class AdminController {
       const createdAdmin = await this.service.create(data);
       res.status(201).json(createdAdmin);
     } catch (error) {
-      console.log("Tratar Erro")
+      console.error(error);
+      res
+        .status(500)
+        .json({ error: "Erro interno do servidor ao criar administrador." });
     }
   }
 
@@ -21,12 +24,15 @@ class AdminController {
       const admin = await this.service.getById(id);
 
       if (admin) {
-        res.status(201).json(admin);
+        res.status(200).json(admin);
       } else {
-        console.log("Tratar Erro")
+        res.status(404).json({ error: "Administrador não encontrado." });
       }
     } catch (error) {
-      console.log("Tratar Erro")
+      console.error(error);
+      res
+        .status(500)
+        .json({ error: "Erro interno do servidor ao obter administrador." });
     }
   }
 
@@ -35,12 +41,15 @@ class AdminController {
       const adminArray = await this.service.getAll();
 
       if (adminArray) {
-        res.status(201).json(adminArray);
+        res.status(200).json(adminArray);
       } else {
-        console.log("Tratar Erro")
+        res.status(404).json({ error: "Nenhum administrador encontrado." });
       }
     } catch (error) {
-      console.log("Tratar Erro")
+      console.error(error);
+      res
+        .status(500)
+        .json({ error: "Erro interno do servidor ao obter administradores." });
     }
   }
 
@@ -51,12 +60,17 @@ class AdminController {
       const updatedAdmin = await this.service.update(id, data);
 
       if (updatedAdmin) {
-        res.status(201).json(updatedAdmin);
+        res.status(200).json(updatedAdmin);
       } else {
-        console.log("Tratar Erro")
+        res.status(404).json({ error: "Administrador não encontrado." });
       }
     } catch (error) {
-      console.log("Tratar Erro")
+      console.error(error);
+      res
+        .status(500)
+        .json({
+          error: "Erro interno do servidor ao atualizar administrador.",
+        });
     }
   }
 
@@ -68,11 +82,40 @@ class AdminController {
       if (deletedAdmin) {
         res.status(200).json(deletedAdmin);
       } else {
-        console.log("Tratar Erro")
+        res.status(404).json({ error: "Administrador não encontrado." });
       }
     } catch (error) {
-      console.log(error);
-      console.log("Tratar Erro")
+      console.error(error);
+      res
+        .status(500)
+        .json({ error: "Erro interno do servidor ao excluir administrador." });
+    }
+  }
+
+  async updateUserJewels(req: Request, res: Response): Promise<void> {
+    try {
+      const userId: string = req.params.userId;
+      const jewelsToAdd: number = req.body.jewels;
+
+      const success = await this.service.updateUserJewels(userId, jewelsToAdd);
+
+      if (success) {
+        res
+          .status(200)
+          .json({
+            message: "Quantidade de jewels do usuário atualizada com sucesso.",
+          });
+      } else {
+        res.status(404).json({ error: "Usuário não encontrado." });
+      }
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({
+          error:
+            "Erro interno do servidor ao atualizar a quantidade de jewels do usuário.",
+        });
     }
   }
 }

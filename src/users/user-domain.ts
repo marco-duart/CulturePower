@@ -18,7 +18,7 @@ const UserSchema = new Schema(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, minLength: 8 },
-    jewelsAmount: { type: String },
+    jewelsAmount: { type: Number, default: 0 },
     products: [{ type: Schema.Types.ObjectId, refPath: "Product" }],
     favoriteProducts: [{ type: Schema.Types.ObjectId, refPath: "Product" }],
     photo: { type: String },

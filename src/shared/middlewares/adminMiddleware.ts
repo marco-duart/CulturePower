@@ -1,17 +1,17 @@
 import { NextFunction, Request, Response } from "express";
-import * as schema from "../../users/user-schemas";
+import { ICreateAdmin, createAdminValidate } from "../../admins/admin-schemas";
 import * as yup from "yup";
 
-export async function createUserMiddleware(
-  req: Request<{}, {}, schema.ICreateUser>,
+export async function createAdminMiddleware(
+  req: Request<{}, {}, ICreateAdmin>,
   res: Response,
   next: NextFunction
 ) {
   const { body } = req;
 
   try {
-    const validateData: schema.ICreateUser =
-      await schema.createUserValidate.validate(req.body, { abortEarly: false });
+    const validateData: ICreateAdmin =
+      await createAdminValidate.validate(req.body, { abortEarly: false });
     console.log("All required fields are present!");
     next();
   } catch (error) {

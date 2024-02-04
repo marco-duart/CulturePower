@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import UserService from "./user-service";
 import { UpdateUserDTO, CreateUserDTO } from "./user-dto";
+import { decodeJwt } from "../utils/jwt-utils";
 
 class UserController {
   constructor(private service: UserService) {}
@@ -73,6 +74,64 @@ class UserController {
     } catch (error) {
       console.log(error);
       console.log("Tratar Erro")
+    }
+  }
+
+  async buyProduct(req: Request, res: Response): Promise<void | Response>  {
+    const token = req.headers["authorization"];
+    
+    if (!token) {
+      return res.status(403).json({ error: 'Middleware já confirmou a existência de um token antes de chegar aqui!' });
+    }
+  
+    try {
+      const userPayload = decodeJwt(token);
+      
+      if (!userPayload || !userPayload.id) {
+        throw new Error('Token inválido!');
+      }
+  
+      const productId = req.params.productId;
+  
+      const result = await this.service.buyProduct(userPayload.id, productId);
+  
+      if (result) {
+        res.json(result);
+      } else {
+        res.status(400).json({ error: 'Falha ao comprar o produto.' });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(401).json({ error: 'Token expirado ou inválido. Faça login novamente.' });
+    }
+  }
+
+  async addToFavorites(req: Request, res: Response): Promise<void | Response> {
+    const token = req.headers["authorization"];
+    
+    if (!token) {
+      return res.status(403).json({ error: 'Middleware já confirmou a existência de um token antes de chegar aqui!' });
+    }
+  
+    try {
+      const userPayload = decodeJwt(token);
+      
+      if (!userPayload || !userPayload.id) {
+        throw new Error('Token inválido!');
+      }
+  
+      const productId = req.params.productId;
+  
+      const result = await this.service.addToFavorites(userPayload.id, productId);
+  
+      if (result) {
+        res.json(result);
+      } else {
+        res.status(400).json({ error: 'Falha ao favoritar o produto.' });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(401).json({ error: 'Token expirado ou inválido. Faça login novamente.' });
     }
   }
 }

@@ -1,17 +1,19 @@
 import { NextFunction, Request, Response } from "express";
-import * as schema from "../../users/user-schemas";
+import { userLoginValidate, IUserLogin } from "../../auth/auth-schemas";
 import * as yup from "yup";
 
-export async function createUserMiddleware(
-  req: Request<{}, {}, schema.ICreateUser>,
+export async function authValidateMiddleware(
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
   const { body } = req;
 
   try {
-    const validateData: schema.ICreateUser =
-      await schema.createUserValidate.validate(req.body, { abortEarly: false });
+    const validateData: IUserLogin =
+      await userLoginValidate.validate(req.body, {
+        abortEarly: false,
+      });
     console.log("All required fields are present!");
     next();
   } catch (error) {
