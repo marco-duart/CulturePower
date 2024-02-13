@@ -12,8 +12,32 @@ export class AuthController {
       const result = await this.service.login(data);
       return res.status(200).json(result);
     } catch (error) {
-        console.log("Tratar error")
-        return
+      console.log("Tratar error");
+      return;
     }
+  }
+
+  async getUserInfo(req: Request, res: Response) {
+    const authorization = req.headers["authorization"];
+
+    if (!authorization) {
+      return res.status(401).json({
+        error: true,
+        message: "Unauthorized",
+        status: 401,
+      });
+    }
+
+    const userInfo = await this.service.getUserInfo(authorization);
+
+    if (!userInfo) {
+      return res.status(401).json({
+        error: true,
+        message: "Unauthorized",
+        status: 401,
+      });
+    }
+
+    res.json(userInfo);
   }
 }
