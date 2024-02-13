@@ -8,4 +8,4 @@ export interface IUserLogin {
 export const userLoginValidate: yup.Schema<IUserLogin> = yup.object().shape({
   email: yup.string().required().email(),
   password: yup.string().required().min(8),
-})
+});

@@ -5,6 +5,7 @@ import { Request } from "express";
 import UserRepository from "../users/user-repository";
 import AdminRepository from "../admins/admin-repository";
 import { Admin } from "../admins/admin-domain";
+import { User } from "../users/user-domain";
 import { AuthDTO } from "./auth-dto";
 import { env } from "../configs/env";
 
@@ -26,8 +27,10 @@ export class AuthService {
 
     const payload = {
       id: user.id,
+      name: user.name,
       email: user.email,
       role: user instanceof Admin ? "admin" : "user",
+      photo: user instanceof User ? user.photo : null,
     };
     const secretKey = env.JWT_SECRET_KEY;
     const options = { expiresIn: "5h" };
@@ -44,8 +47,10 @@ export class AuthService {
 
       return {
         userId: decodedToken.id,
+        name: decodedToken.name,
         email: decodedToken.email,
         role: decodedToken.role,
+        photo: decodedToken.photo,
       };
     } catch (error) {
       console.log("Erro ao decodificar o token:", error);

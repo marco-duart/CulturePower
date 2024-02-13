@@ -5,10 +5,10 @@ import ProductController from "./product-controller";
 
 export class ProductModule {
   static make() {
-    const repository = new ProductRepository(Product)
-    const service = new ProductService(repository)
-    const controller = new ProductController(service)
+    const repository = new ProductRepository(Product);
+    const service = new ProductService(repository);
+    const controller = new ProductController(service);
 
-    return { controller, service, repository }
+    return { controller, service, repository };
   }
 }

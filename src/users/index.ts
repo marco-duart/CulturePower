@@ -8,12 +8,12 @@ import ProductRepository from "../products/product-repository";
 
 export class UserModule {
   static make() {
-    const userRepository = new UserRepository(User)
-    const productRepository = new ProductRepository(Product)
+    const userRepository = new UserRepository(User);
+    const productRepository = new ProductRepository(Product);
 
-    const service = new UserService(userRepository, productRepository)
-    const controller = new UserController(service)
+    const service = new UserService(userRepository, productRepository);
+    const controller = new UserController(service);
 
-    return { controller, service, userRepository }
+    return { controller, service, userRepository };
   }
 }

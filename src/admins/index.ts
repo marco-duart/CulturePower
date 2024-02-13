@@ -7,11 +7,11 @@ import { User } from "../users/user-domain";
 
 export class AdminModule {
   static make() {
-    const adminRepository = new AdminRepository(Admin)
-    const userRepository = new UserRepository(User)
-    const service = new AdminService(adminRepository, userRepository)
-    const controller = new AdminController(service)
+    const adminRepository = new AdminRepository(Admin);
+    const userRepository = new UserRepository(User);
+    const service = new AdminService(adminRepository, userRepository);
+    const controller = new AdminController(service);
 
-    return { controller, service, adminRepository }
+    return { controller, service, adminRepository };
   }
 }

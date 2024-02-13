@@ -1,6 +1,4 @@
-export interface GetAdminDTO {
-  
-}
+export interface GetAdminDTO {}
 
 export interface CreateAdminDTO {
   name: string;

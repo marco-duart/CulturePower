@@ -11,7 +11,9 @@ export async function createProductMiddleware(
 
   try {
     const validateData: schema.ICreateProduct =
-      await schema.createProductValidate.validate(req.body, { abortEarly: false });
+      await schema.createProductValidate.validate(req.body, {
+        abortEarly: false,
+      });
     console.log("All required fields are present!");
     next();
   } catch (error) {

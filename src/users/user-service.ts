@@ -3,6 +3,7 @@ import { IUser } from "./user-domain";
 import { CreateUserDTO, UpdateUserDTO } from "./user-dto";
 import UserRepository from "./user-repository";
 import ProductRepository from "../products/product-repository";
+import fs from "fs";
 
 class UserService {
   constructor(
@@ -39,7 +40,31 @@ class UserService {
   }
 
   async softDelete(id: string): Promise<IUser | null> {
-    return await this.userRepository.softDelete(id);
+    const userToDelete = await this.userRepository.findById(id);
+
+    if (!userToDelete) {
+      console.log("Tratar: Não veio user do db");
+      return null;
+    }
+
+    const fileName = userToDelete.photo.split("/").pop();
+
+    const deletedUser = await this.userRepository.softDelete(id);
+
+    if (!deletedUser) {
+      console.log("Tratar: Não conseguiu deletar o user do db");
+      return null;
+    }
+
+    try {
+      if (fileName) {
+        fs.unlinkSync(`uploads/${fileName}`);
+      }
+    } catch (error) {
+      console.error("Erro ao excluir a imagem:", error);
+    }
+
+    return deletedUser;
   }
 
   async buyProduct(userId: string, productId: string): Promise<IUser | null> {
@@ -62,13 +87,19 @@ class UserService {
     user.products.push(product._id);
     product.amount--;
 
-    await this.userRepository.update(userId, { jewelsAmount: user.jewelsAmount, products: user.products });
+    await this.userRepository.update(userId, {
+      jewelsAmount: user.jewelsAmount,
+      products: user.products,
+    });
     await this.productRepository.update(productId, { amount: product.amount });
 
     return user;
   }
 
-  async addToFavorites(userId: string, productId: string): Promise<IUser | null> {
+  async addToFavorites(
+    userId: string,
+    productId: string
+  ): Promise<IUser | null> {
     const user = await this.userRepository.findById(userId);
     const product = await this.productRepository.findById(productId);
 
@@ -82,7 +113,34 @@ class UserService {
 
     user.favoriteProducts.push(product._id);
 
-    await this.userRepository.update(userId, { favoriteProducts: user.favoriteProducts });
+    await this.userRepository.update(userId, {
+      favoriteProducts: user.favoriteProducts,
+    });
+
+    return user;
+  }
+
+  async removeFromFavorites(
+    userId: string,
+    productId: string
+  ): Promise<IUser | null> {
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      return null;
+    }
+
+    const index = user.favoriteProducts.indexOf(productId);
+
+    if (index === -1) {
+      return user;
+    }
+
+    user.favoriteProducts.splice(index, 1);
+
+    await this.userRepository.update(userId, {
+      favoriteProducts: user.favoriteProducts,
+    });
 
     return user;
   }

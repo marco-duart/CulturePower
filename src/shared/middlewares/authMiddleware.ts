@@ -10,10 +10,12 @@ export async function authValidateMiddleware(
   const { body } = req;
 
   try {
-    const validateData: IUserLogin =
-      await userLoginValidate.validate(req.body, {
+    const validateData: IUserLogin = await userLoginValidate.validate(
+      req.body,
+      {
         abortEarly: false,
-      });
+      }
+    );
     console.log("All required fields are present!");
     next();
   } catch (error) {

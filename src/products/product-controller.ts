@@ -8,10 +8,17 @@ class ProductController {
   async create(req: Request, res: Response): Promise<void> {
     try {
       const data: CreateProductDTO = req.body;
+      const photoPath = req.file?.path;
+
+      if (photoPath) {
+        const fileName = photoPath.split("\\").pop();
+        data.photo = `${req.protocol}://${req.get("host")}/${fileName}`;
+      }
+
       const createdProduct = await this.service.create(data);
       res.status(201).json(createdProduct);
     } catch (error) {
-      console.log("Tratar Erro")
+      console.log("Tratar Erro");
     }
   }
 
@@ -23,10 +30,10 @@ class ProductController {
       if (product) {
         res.status(201).json(product);
       } else {
-        console.log("Tratar Erro")
+        console.log("Tratar Erro");
       }
     } catch (error) {
-      console.log("Tratar Erro")
+      console.log("Tratar Erro");
     }
   }
 
@@ -37,10 +44,10 @@ class ProductController {
       if (productArray) {
         res.status(201).json(productArray);
       } else {
-        console.log("Tratar Erro")
+        console.log("Tratar Erro");
       }
     } catch (error) {
-      console.log("Tratar Erro")
+      console.log("Tratar Erro");
     }
   }
 
@@ -53,10 +60,10 @@ class ProductController {
       if (updatedProduct) {
         res.status(201).json(updatedProduct);
       } else {
-        console.log("Tratar Erro")
+        console.log("Tratar Erro");
       }
     } catch (error) {
-      console.log("Tratar Erro")
+      console.log("Tratar Erro");
     }
   }
 
@@ -68,11 +75,11 @@ class ProductController {
       if (deletedProduct) {
         res.status(200).json(deletedProduct);
       } else {
-        console.log("Tratar Erro")
+        console.log("Tratar Erro");
       }
     } catch (error) {
       console.log(error);
-      console.log("Tratar Erro")
+      console.log("Tratar Erro");
     }
   }
 }

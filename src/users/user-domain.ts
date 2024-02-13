@@ -22,7 +22,7 @@ const UserSchema = new Schema(
     products: [{ type: Schema.Types.ObjectId, refPath: "Product" }],
     favoriteProducts: [{ type: Schema.Types.ObjectId, refPath: "Product" }],
     photo: { type: String },
-    deletedAt: { type: Date },
+    deletedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

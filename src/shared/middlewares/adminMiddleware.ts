@@ -10,8 +10,10 @@ export async function createAdminMiddleware(
   const { body } = req;
 
   try {
-    const validateData: ICreateAdmin =
-      await createAdminValidate.validate(req.body, { abortEarly: false });
+    const validateData: ICreateAdmin = await createAdminValidate.validate(
+      req.body,
+      { abortEarly: false }
+    );
     console.log("All required fields are present!");
     next();
   } catch (error) {

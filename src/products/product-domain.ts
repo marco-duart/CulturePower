@@ -15,7 +15,7 @@ export const ProductSchema = new Schema(
     amount: { type: Number, required: true },
     description: { type: String, required: true },
     photo: { type: String, required: true },
-    deletedAt: { type: Date },
+    deletedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

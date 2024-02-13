@@ -1,12 +1,10 @@
-export interface GetUserDTO {
-  
-}
+export interface GetUserDTO {}
 
 export interface CreateUserDTO {
   name: string;
   email: string;
   password: string;
-  photo: string
+  photo: string;
 }
 
 export interface UpdateUserDTO {

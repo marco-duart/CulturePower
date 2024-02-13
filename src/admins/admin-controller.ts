@@ -66,11 +66,9 @@ class AdminController {
       }
     } catch (error) {
       console.error(error);
-      res
-        .status(500)
-        .json({
-          error: "Erro interno do servidor ao atualizar administrador.",
-        });
+      res.status(500).json({
+        error: "Erro interno do servidor ao atualizar administrador.",
+      });
     }
   }
 
@@ -100,22 +98,18 @@ class AdminController {
       const success = await this.service.updateUserJewels(userId, jewelsToAdd);
 
       if (success) {
-        res
-          .status(200)
-          .json({
-            message: "Quantidade de jewels do usuário atualizada com sucesso.",
-          });
+        res.status(200).json({
+          message: "Quantidade de jewels do usuário atualizada com sucesso.",
+        });
       } else {
         res.status(404).json({ error: "Usuário não encontrado." });
       }
     } catch (error) {
       console.error(error);
-      res
-        .status(500)
-        .json({
-          error:
-            "Erro interno do servidor ao atualizar a quantidade de jewels do usuário.",
-        });
+      res.status(500).json({
+        error:
+          "Erro interno do servidor ao atualizar a quantidade de jewels do usuário.",
+      });
     }
   }
 }

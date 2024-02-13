@@ -9,10 +9,17 @@ class UserController {
   async create(req: Request, res: Response): Promise<void> {
     try {
       const data: CreateUserDTO = req.body;
+      const photoPath = req.file?.path;
+
+      if (photoPath) {
+        const fileName = photoPath.split("\\").pop();
+        data.photo = `${req.protocol}://${req.get("host")}/${fileName}`;
+      }
+
       const createdUser = await this.service.create(data);
       res.status(201).json(createdUser);
     } catch (error) {
-      console.log("Tratar Erro")
+      console.log("Tratar Erro");
     }
   }
 
@@ -24,10 +31,11 @@ class UserController {
       if (user) {
         res.status(201).json(user);
       } else {
-        console.log("Tratar Erro")
+        console.log("Tratar Erro gerando novo throw?");
       }
     } catch (error) {
-      console.log("Tratar Erro")
+      console.log("Tratar Erro");
+      console.log(error);
     }
   }
 
@@ -38,10 +46,10 @@ class UserController {
       if (userArray) {
         res.status(201).json(userArray);
       } else {
-        console.log("Tratar Erro")
+        console.log("Tratar Erro");
       }
     } catch (error) {
-      console.log("Tratar Erro")
+      console.log("Tratar Erro");
     }
   }
 
@@ -49,15 +57,21 @@ class UserController {
     try {
       const id: string = req.params.id;
       const data: UpdateUserDTO = req.body;
+      const photoPath = req.file?.path;
+
+      if (photoPath) {
+        data.photo = photoPath;
+      }
+
       const updatedUser = await this.service.update(id, data);
 
       if (updatedUser) {
         res.status(201).json(updatedUser);
       } else {
-        console.log("Tratar Erro")
+        console.log("Tratar Erro");
       }
     } catch (error) {
-      console.log("Tratar Erro")
+      console.log("Tratar Erro");
     }
   }
 
@@ -69,69 +83,124 @@ class UserController {
       if (deletedUser) {
         res.status(200).json(deletedUser);
       } else {
-        console.log("Tratar Erro")
+        console.log("Tratar Erro");
       }
     } catch (error) {
       console.log(error);
-      console.log("Tratar Erro")
+      console.log("Tratar Erro");
     }
   }
 
-  async buyProduct(req: Request, res: Response): Promise<void | Response>  {
+  async buyProduct(req: Request, res: Response): Promise<void | Response> {
     const token = req.headers["authorization"];
-    
+
     if (!token) {
-      return res.status(403).json({ error: 'Middleware já confirmou a existência de um token antes de chegar aqui!' });
+      return res.status(403).json({
+        error:
+          "Middleware já confirmou a existência de um token antes de chegar aqui!",
+      });
     }
-  
+
     try {
       const userPayload = decodeJwt(token);
-      
+
       if (!userPayload || !userPayload.id) {
-        throw new Error('Token inválido!');
+        throw new Error("Token inválido!");
       }
-  
+
       const productId = req.params.productId;
-  
+
       const result = await this.service.buyProduct(userPayload.id, productId);
-  
+
       if (result) {
         res.json(result);
       } else {
-        res.status(400).json({ error: 'Falha ao comprar o produto.' });
+        res.status(400).json({ error: "Falha ao comprar o produto." });
       }
     } catch (error) {
       console.log(error);
-      res.status(401).json({ error: 'Token expirado ou inválido. Faça login novamente.' });
+      res
+        .status(401)
+        .json({ error: "Token expirado ou inválido. Faça login novamente." });
     }
   }
 
   async addToFavorites(req: Request, res: Response): Promise<void | Response> {
     const token = req.headers["authorization"];
-    
+
     if (!token) {
-      return res.status(403).json({ error: 'Middleware já confirmou a existência de um token antes de chegar aqui!' });
+      return res.status(403).json({
+        error:
+          "Middleware já confirmou a existência de um token antes de chegar aqui!",
+      });
     }
-  
+
     try {
       const userPayload = decodeJwt(token);
-      
+
       if (!userPayload || !userPayload.id) {
-        throw new Error('Token inválido!');
+        throw new Error("Token inválido!");
       }
-  
+
       const productId = req.params.productId;
-  
-      const result = await this.service.addToFavorites(userPayload.id, productId);
-  
+
+      const result = await this.service.addToFavorites(
+        userPayload.id,
+        productId
+      );
+
       if (result) {
         res.json(result);
       } else {
-        res.status(400).json({ error: 'Falha ao favoritar o produto.' });
+        res.status(400).json({ error: "Falha ao favoritar o produto." });
       }
     } catch (error) {
       console.log(error);
-      res.status(401).json({ error: 'Token expirado ou inválido. Faça login novamente.' });
+      res
+        .status(401)
+        .json({ error: "Token expirado ou inválido. Faça login novamente." });
+    }
+  }
+
+  async removeFromFavorites(
+    req: Request,
+    res: Response
+  ): Promise<void | Response> {
+    const token = req.headers["authorization"];
+
+    if (!token) {
+      return res.status(403).json({
+        error:
+          "Middleware já confirmou a existência de um token antes de chegar aqui!",
+      });
+    }
+
+    try {
+      const userPayload = decodeJwt(token);
+
+      if (!userPayload || !userPayload.id) {
+        throw new Error("Token inválido!");
+      }
+
+      const productId = req.params.productId;
+
+      const result = await this.service.removeFromFavorites(
+        userPayload.id,
+        productId
+      );
+
+      if (result) {
+        res.json(result);
+      } else {
+        res
+          .status(400)
+          .json({ error: "Falha ao remover o produto dos favoritos." });
+      }
+    } catch (error) {
+      console.log(error);
+      res
+        .status(401)
+        .json({ error: "Token expirado ou inválido. Faça login novamente." });
     }
   }
 }
