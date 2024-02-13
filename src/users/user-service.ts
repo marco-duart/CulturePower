@@ -36,8 +36,27 @@ class UserService {
   }
 
   async update(id: string, data: UpdateUserDTO): Promise<IUser | null> {
-    return await this.userRepository.update(id, data);
-  }
+    const currentUser = await this.userRepository.findById(id);
+
+    const updatedUser = await this.userRepository.update(id, data);
+
+    if (!updatedUser) {
+        return null;
+    }
+
+    if (currentUser && currentUser.photo && data.photo) {
+        const fileName = currentUser.photo.split("/").pop();
+        if (fileName) {
+            try {
+                fs.unlinkSync(`uploads/${fileName}`);
+            } catch (error) {
+                console.error("Erro ao excluir a imagem anterior:", error);
+            }
+        }
+    }
+
+    return updatedUser;
+}
 
   async softDelete(id: string): Promise<IUser | null> {
     const userToDelete = await this.userRepository.findById(id);

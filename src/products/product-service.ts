@@ -8,7 +8,6 @@ class ProductService {
 
   async create(data: CreateProductDTO): Promise<IProduct> {
     const result = await this.repository.create(data);
-
     return result;
   }
 
@@ -21,7 +20,26 @@ class ProductService {
   }
 
   async update(id: string, data: UpdateProductDTO): Promise<IProduct | null> {
-    return await this.repository.update(id, data);
+    const currentProduct = await this.repository.findById(id);
+
+    const updatedProduct = await this.repository.update(id, data);
+
+    if (!updatedProduct) {
+      return null;
+    }
+
+    if (currentProduct && currentProduct.photo && data.photo) {
+      const fileName = currentProduct.photo.split("/").pop();
+      if (fileName) {
+        try {
+          fs.unlinkSync(`uploads/${fileName}`);
+        } catch (error) {
+          console.error("Erro ao excluir a imagem anterior:", error);
+        }
+      }
+    }
+
+    return updatedProduct;
   }
 
   async softDelete(id: string): Promise<IProduct | null> {

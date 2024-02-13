@@ -55,6 +55,13 @@ class ProductController {
     try {
       const id: string = req.params.id;
       const data: UpdateProductDTO = req.body;
+      const photoPath = req.file?.path;
+
+      if (photoPath) {
+        const fileName = photoPath.split("\\").pop();
+        data.photo = `${req.protocol}://${req.get("host")}/${fileName}`;
+      }
+
       const updatedProduct = await this.service.update(id, data);
 
       if (updatedProduct) {
