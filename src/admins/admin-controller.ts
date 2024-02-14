@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import AdminService from "./admin-service";
 import { UpdateAdminDTO, CreateAdminDTO } from "./admin-dto";
+import { CustomError } from "../shared/errors/CustomError";
+import { StatusCode } from "../utils/enums/statusCode";
 
 class AdminController {
   constructor(private service: AdminService) {}
@@ -11,10 +13,12 @@ class AdminController {
       const createdAdmin = await this.service.create(data);
       res.status(201).json(createdAdmin);
     } catch (error) {
-      console.error(error);
-      res
-        .status(500)
-        .json({ error: "Erro interno do servidor ao criar administrador." });
+      console.error("Error creating admin:", error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        error: true,
+        message: "Internal server error",
+        code: StatusCode.INTERNAL_SERVER_ERROR
+      });
     }
   }
 
@@ -26,30 +30,37 @@ class AdminController {
       if (admin) {
         res.status(200).json(admin);
       } else {
-        res.status(404).json({ error: "Administrador não encontrado." });
+        throw new CustomError("Admin not found", StatusCode.NOT_FOUND);
       }
     } catch (error) {
-      console.error(error);
-      res
-        .status(500)
-        .json({ error: "Erro interno do servidor ao obter administrador." });
+      console.error("Error fetching admin by ID:", error);
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: "Internal server error",
+          code: StatusCode.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
   async getAll(req: Request, res: Response): Promise<void> {
     try {
       const adminArray = await this.service.getAll();
-
-      if (adminArray) {
-        res.status(200).json(adminArray);
-      } else {
-        res.status(404).json({ error: "Nenhum administrador encontrado." });
-      }
+      res.status(200).json(adminArray);
     } catch (error) {
-      console.error(error);
-      res
-        .status(500)
-        .json({ error: "Erro interno do servidor ao obter administradores." });
+      console.error("Error fetching all admins:", error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        error: true,
+        message: "Internal server error",
+        code: StatusCode.INTERNAL_SERVER_ERROR
+      });
     }
   }
 
@@ -62,13 +73,23 @@ class AdminController {
       if (updatedAdmin) {
         res.status(200).json(updatedAdmin);
       } else {
-        res.status(404).json({ error: "Administrador não encontrado." });
+        throw new CustomError("Admin not found", StatusCode.NOT_FOUND);
       }
     } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        error: "Erro interno do servidor ao atualizar administrador.",
-      });
+      console.error("Error updating admin:", error);
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: "Internal server error",
+          code: StatusCode.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
@@ -80,13 +101,23 @@ class AdminController {
       if (deletedAdmin) {
         res.status(200).json(deletedAdmin);
       } else {
-        res.status(404).json({ error: "Administrador não encontrado." });
+        throw new CustomError("Admin not found", StatusCode.NOT_FOUND);
       }
     } catch (error) {
-      console.error(error);
-      res
-        .status(500)
-        .json({ error: "Erro interno do servidor ao excluir administrador." });
+      console.error("Error deleting admin:", error);
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: "Internal server error",
+          code: StatusCode.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
@@ -99,17 +130,26 @@ class AdminController {
 
       if (success) {
         res.status(200).json({
-          message: "Quantidade de jewels do usuário atualizada com sucesso.",
+          message: "User jewels quantity updated successfully.",
         });
       } else {
-        res.status(404).json({ error: "Usuário não encontrado." });
+        throw new CustomError("User not found", StatusCode.NOT_FOUND);
       }
     } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        error:
-          "Erro interno do servidor ao atualizar a quantidade de jewels do usuário.",
-      });
+      console.error("Error updating user jewels:", error);
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: "Internal server error",
+          code: StatusCode.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 }

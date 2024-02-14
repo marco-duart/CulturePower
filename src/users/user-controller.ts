@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import UserService from "./user-service";
 import { UpdateUserDTO, CreateUserDTO } from "./user-dto";
+import { CustomError } from "../shared/errors/CustomError";
+import { StatusCode } from "../utils/enums/statusCode";
 import { decodeJwt } from "../utils/jwt-utils";
 
 class UserController {
@@ -19,7 +21,12 @@ class UserController {
       const createdUser = await this.service.create(data);
       res.status(201).json(createdUser);
     } catch (error) {
-      console.log("Tratar Erro");
+      console.error("Error creating user:", error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        error: true,
+        message: "Internal server error",
+        code: StatusCode.INTERNAL_SERVER_ERROR
+      });
     }
   }
 
@@ -29,27 +36,39 @@ class UserController {
       const user = await this.service.getById(id);
 
       if (user) {
-        res.status(201).json(user);
+        res.status(200).json(user);
       } else {
-        console.log("Tratar Erro gerando novo throw?");
+        throw new CustomError("User not found", StatusCode.NOT_FOUND);
       }
     } catch (error) {
-      console.log("Tratar Erro");
-      console.log(error);
+      console.error("Error fetching user by ID:", error);
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: "Internal server error",
+          code: StatusCode.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
   async getAll(req: Request, res: Response): Promise<void> {
     try {
       const userArray = await this.service.getAll();
-
-      if (userArray) {
-        res.status(201).json(userArray);
-      } else {
-        console.log("Tratar Erro");
-      }
+      res.status(200).json(userArray);
     } catch (error) {
-      console.log("Tratar Erro");
+      console.error("Error fetching all users:", error);
+      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        error: true,
+        message: "Internal server error",
+        code: StatusCode.INTERNAL_SERVER_ERROR
+      });
     }
   }
 
@@ -66,12 +85,25 @@ class UserController {
       const updatedUser = await this.service.update(id, data);
 
       if (updatedUser) {
-        res.status(201).json(updatedUser);
+        res.status(200).json(updatedUser);
       } else {
-        console.log("Tratar Erro");
+        throw new CustomError("User not found", StatusCode.NOT_FOUND);
       }
     } catch (error) {
-      console.log("Tratar Erro");
+      console.error("Error updating user:", error);
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: "Internal server error",
+          code: StatusCode.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
@@ -83,11 +115,23 @@ class UserController {
       if (deletedUser) {
         res.status(200).json(deletedUser);
       } else {
-        console.log("Tratar Erro");
+        throw new CustomError("User not found", StatusCode.NOT_FOUND);
       }
     } catch (error) {
-      console.log(error);
-      console.log("Tratar Erro");
+      console.error("Error deleting user:", error);
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: "Internal server error",
+          code: StatusCode.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
@@ -96,8 +140,9 @@ class UserController {
 
     if (!token) {
       return res.status(403).json({
-        error:
-          "Middleware já confirmou a existência de um token antes de chegar aqui!",
+        error: true,
+        message: "Missing token or inválid token format",
+        code: StatusCode.INTERNAL_SERVER_ERROR
       });
     }
 
@@ -105,7 +150,7 @@ class UserController {
       const userPayload = decodeJwt(token);
 
       if (!userPayload || !userPayload.id) {
-        throw new Error("Token inválido!");
+        throw new Error("Invalid token!");
       }
 
       const productId = req.params.productId;
@@ -115,13 +160,13 @@ class UserController {
       if (result) {
         res.json(result);
       } else {
-        res.status(400).json({ error: "Falha ao comprar o produto." });
+        res.status(400).json({ error: "Failed to buy the product." });
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error buying product:", error);
       res
         .status(401)
-        .json({ error: "Token expirado ou inválido. Faça login novamente." });
+        .json({ error: "Expired or invalid token. Please log in again." });
     }
   }
 
@@ -130,8 +175,9 @@ class UserController {
 
     if (!token) {
       return res.status(403).json({
-        error:
-          "Middleware já confirmou a existência de um token antes de chegar aqui!",
+        error: true,
+        message: "Missing token or inválid token format",
+        code: StatusCode.INTERNAL_SERVER_ERROR
       });
     }
 
@@ -139,7 +185,7 @@ class UserController {
       const userPayload = decodeJwt(token);
 
       if (!userPayload || !userPayload.id) {
-        throw new Error("Token inválido!");
+        throw new Error("Invalid token!");
       }
 
       const productId = req.params.productId;
@@ -152,13 +198,13 @@ class UserController {
       if (result) {
         res.json(result);
       } else {
-        res.status(400).json({ error: "Falha ao favoritar o produto." });
+        res.status(400).json({ error: "Failed to add the product to favorites." });
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error adding product to favorites:", error);
       res
         .status(401)
-        .json({ error: "Token expirado ou inválido. Faça login novamente." });
+        .json({ error: "Expired or invalid token. Please log in again." });
     }
   }
 
@@ -170,8 +216,9 @@ class UserController {
 
     if (!token) {
       return res.status(403).json({
-        error:
-          "Middleware já confirmou a existência de um token antes de chegar aqui!",
+        error: true,
+        message: "Missing token or inválid token format",
+        code: StatusCode.INTERNAL_SERVER_ERROR
       });
     }
 
@@ -179,7 +226,7 @@ class UserController {
       const userPayload = decodeJwt(token);
 
       if (!userPayload || !userPayload.id) {
-        throw new Error("Token inválido!");
+        throw new Error("Invalid token!");
       }
 
       const productId = req.params.productId;
@@ -192,15 +239,13 @@ class UserController {
       if (result) {
         res.json(result);
       } else {
-        res
-          .status(400)
-          .json({ error: "Falha ao remover o produto dos favoritos." });
+        res.status(400).json({ error: "Failed to remove the product from favorites." });
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error removing product from favorites:", error);
       res
         .status(401)
-        .json({ error: "Token expirado ou inválido. Faça login novamente." });
+        .json({ error: "Expired or invalid token. Please log in again." });
     }
   }
 }

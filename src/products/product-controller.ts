@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import ProductService from "./product-service";
 import { UpdateProductDTO, CreateProductDTO } from "./product-dto";
+import { CustomError } from "../shared/errors/CustomError";
+import { StatusCode } from "../utils/enums/statusCode";
 
 class ProductController {
   constructor(private service: ProductService) {}
@@ -18,7 +20,20 @@ class ProductController {
       const createdProduct = await this.service.create(data);
       res.status(201).json(createdProduct);
     } catch (error) {
-      console.log("Tratar Erro");
+      console.error("Error creating product:", error);
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: "Internal server error",
+          code: StatusCode.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
@@ -28,26 +43,47 @@ class ProductController {
       const product = await this.service.getById(id);
 
       if (product) {
-        res.status(201).json(product);
+        res.status(200).json(product);
       } else {
-        console.log("Tratar Erro");
+        throw new CustomError("Product not found", StatusCode.NOT_FOUND);
       }
     } catch (error) {
-      console.log("Tratar Erro");
+      console.error("Error fetching product by ID:", error);
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: "Internal server error",
+          code: StatusCode.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
   async getAll(req: Request, res: Response): Promise<void> {
     try {
       const productArray = await this.service.getAll();
-
-      if (productArray) {
-        res.status(201).json(productArray);
-      } else {
-        console.log("Tratar Erro");
-      }
+      res.status(200).json(productArray);
     } catch (error) {
-      console.log("Tratar Erro");
+      console.error("Error fetching all products:", error);
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: "Internal server error",
+          code: StatusCode.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
@@ -65,12 +101,25 @@ class ProductController {
       const updatedProduct = await this.service.update(id, data);
 
       if (updatedProduct) {
-        res.status(201).json(updatedProduct);
+        res.status(200).json(updatedProduct);
       } else {
-        console.log("Tratar Erro");
+        throw new CustomError("Product not found", StatusCode.NOT_FOUND);
       }
     } catch (error) {
-      console.log("Tratar Erro");
+      console.error("Error updating product:", error);
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: "Internal server error",
+          code: StatusCode.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
@@ -82,11 +131,23 @@ class ProductController {
       if (deletedProduct) {
         res.status(200).json(deletedProduct);
       } else {
-        console.log("Tratar Erro");
+        throw new CustomError("Product not found", StatusCode.NOT_FOUND);
       }
     } catch (error) {
-      console.log(error);
-      console.log("Tratar Erro");
+      console.error("Error deleting product:", error);
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: "Internal server error",
+          code: StatusCode.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 }
