@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import AdminService from "./admin-service";
 import { UpdateAdminDTO, CreateAdminDTO } from "./admin-dto";
-import { CustomError } from "../shared/errors/CustomError";
-import { StatusCode } from "../utils/enums/statusCode";
+import { CustomError } from "../shared/error/CustomError";
+import { STATUS_CODE } from "../utils/enums/statusCode";
+import { ERROR_LOG } from "../utils/enums/errorMessage";
 
 class AdminController {
   constructor(private service: AdminService) {}
@@ -11,13 +12,13 @@ class AdminController {
     try {
       const data: CreateAdminDTO = req.body;
       const createdAdmin = await this.service.create(data);
-      res.status(201).json(createdAdmin);
+      res.status(STATUS_CODE.CREATED).json(createdAdmin);
     } catch (error) {
-      console.error("Error creating admin:", error);
-      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+      console.error(ERROR_LOG.CREATE_ADM, error);
+      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
         error: true,
-        message: "Internal server error",
-        code: StatusCode.INTERNAL_SERVER_ERROR
+        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+        code: STATUS_CODE.INTERNAL_SERVER_ERROR
       });
     }
   }
@@ -28,12 +29,13 @@ class AdminController {
       const admin = await this.service.getById(id);
 
       if (admin) {
-        res.status(200).json(admin);
+        res.status(STATUS_CODE.OK).json(admin);
       } else {
-        throw new CustomError("Admin not found", StatusCode.NOT_FOUND);
+        console.log(ERROR_LOG.ADM_NOT_FOUND);
+        throw new CustomError(ERROR_LOG.ADM_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
     } catch (error) {
-      console.error("Error fetching admin by ID:", error);
+      console.error(ERROR_LOG.FETCH_ADM, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -41,10 +43,10 @@ class AdminController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }
@@ -53,13 +55,13 @@ class AdminController {
   async getAll(req: Request, res: Response): Promise<void> {
     try {
       const adminArray = await this.service.getAll();
-      res.status(200).json(adminArray);
+      res.status(STATUS_CODE.OK).json(adminArray);
     } catch (error) {
-      console.error("Error fetching all admins:", error);
-      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+      console.error(ERROR_LOG.FETCH_ADMS, error);
+      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
         error: true,
-        message: "Internal server error",
-        code: StatusCode.INTERNAL_SERVER_ERROR
+        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+        code: STATUS_CODE.INTERNAL_SERVER_ERROR
       });
     }
   }
@@ -71,12 +73,13 @@ class AdminController {
       const updatedAdmin = await this.service.update(id, data);
 
       if (updatedAdmin) {
-        res.status(200).json(updatedAdmin);
+        res.status(STATUS_CODE.OK).json(updatedAdmin);
       } else {
-        throw new CustomError("Admin not found", StatusCode.NOT_FOUND);
+        console.log(ERROR_LOG.ADM_NOT_FOUND);
+        throw new CustomError(ERROR_LOG.ADM_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
     } catch (error) {
-      console.error("Error updating admin:", error);
+      console.error(ERROR_LOG.UPDATE_ADM, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -84,10 +87,10 @@ class AdminController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }
@@ -99,12 +102,13 @@ class AdminController {
       const deletedAdmin = await this.service.softDelete(id);
 
       if (deletedAdmin) {
-        res.status(200).json(deletedAdmin);
+        res.status(STATUS_CODE.OK).json(deletedAdmin);
       } else {
-        throw new CustomError("Admin not found", StatusCode.NOT_FOUND);
+        console.log(ERROR_LOG.ADM_NOT_FOUND);
+        throw new CustomError(ERROR_LOG.ADM_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
     } catch (error) {
-      console.error("Error deleting admin:", error);
+      console.error(ERROR_LOG.DELETE_ADM, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -112,10 +116,10 @@ class AdminController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }
@@ -129,14 +133,15 @@ class AdminController {
       const success = await this.service.updateUserJewels(userId, jewelsToAdd);
 
       if (success) {
-        res.status(200).json({
+        res.status(STATUS_CODE.OK).json({
           message: "User jewels quantity updated successfully.",
         });
       } else {
-        throw new CustomError("User not found", StatusCode.NOT_FOUND);
+        console.log(ERROR_LOG.USER_NOT_FOUND);
+        throw new CustomError(ERROR_LOG.USER_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
     } catch (error) {
-      console.error("Error updating user jewels:", error);
+      console.error(ERROR_LOG.UPDATE_JEWELS, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -144,10 +149,10 @@ class AdminController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }

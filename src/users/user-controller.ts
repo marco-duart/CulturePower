@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import UserService from "./user-service";
 import { UpdateUserDTO, CreateUserDTO } from "./user-dto";
-import { CustomError } from "../shared/errors/CustomError";
-import { StatusCode } from "../utils/enums/statusCode";
+import { CustomError } from "../shared/error/CustomError";
+import { STATUS_CODE } from "../utils/enums/statusCode";
+import { ERROR_LOG } from "../utils/enums/errorMessage";
 import { decodeJwt } from "../utils/jwt-utils";
 
 class UserController {
@@ -19,13 +20,13 @@ class UserController {
       }
 
       const createdUser = await this.service.create(data);
-      res.status(201).json(createdUser);
+      res.status(STATUS_CODE.CREATED).json(createdUser);
     } catch (error) {
-      console.error("Error creating user:", error);
-      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+      console.error(ERROR_LOG.CREATE_USER, error);
+      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
         error: true,
-        message: "Internal server error",
-        code: StatusCode.INTERNAL_SERVER_ERROR
+        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+        code: STATUS_CODE.INTERNAL_SERVER_ERROR
       });
     }
   }
@@ -36,12 +37,13 @@ class UserController {
       const user = await this.service.getById(id);
 
       if (user) {
-        res.status(200).json(user);
+        res.status(STATUS_CODE.OK).json(user);
       } else {
-        throw new CustomError("User not found", StatusCode.NOT_FOUND);
+        console.log(ERROR_LOG.USER_NOT_FOUND)
+        throw new CustomError(ERROR_LOG.USER_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
     } catch (error) {
-      console.error("Error fetching user by ID:", error);
+      console.error(ERROR_LOG.FETCH_USERS, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -49,10 +51,10 @@ class UserController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }
@@ -61,13 +63,13 @@ class UserController {
   async getAll(req: Request, res: Response): Promise<void> {
     try {
       const userArray = await this.service.getAll();
-      res.status(200).json(userArray);
+      res.status(STATUS_CODE.OK).json(userArray);
     } catch (error) {
-      console.error("Error fetching all users:", error);
-      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+      console.error(ERROR_LOG.FETCH_USERS, error);
+      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
         error: true,
-        message: "Internal server error",
-        code: StatusCode.INTERNAL_SERVER_ERROR
+        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+        code: STATUS_CODE.INTERNAL_SERVER_ERROR
       });
     }
   }
@@ -85,12 +87,13 @@ class UserController {
       const updatedUser = await this.service.update(id, data);
 
       if (updatedUser) {
-        res.status(200).json(updatedUser);
+        res.status(STATUS_CODE.OK).json(updatedUser);
       } else {
-        throw new CustomError("User not found", StatusCode.NOT_FOUND);
+        console.log(ERROR_LOG.USER_NOT_FOUND)
+        throw new CustomError(ERROR_LOG.USER_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.error(ERROR_LOG.UPDATE_USER, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -98,10 +101,10 @@ class UserController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }
@@ -113,12 +116,13 @@ class UserController {
       const deletedUser = await this.service.softDelete(id);
 
       if (deletedUser) {
-        res.status(200).json(deletedUser);
+        res.status(STATUS_CODE.OK).json(deletedUser);
       } else {
-        throw new CustomError("User not found", StatusCode.NOT_FOUND);
+        console.log(ERROR_LOG.USER_NOT_FOUND)
+        throw new CustomError(ERROR_LOG.USER_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
     } catch (error) {
-      console.error("Error deleting user:", error);
+      console.error(ERROR_LOG.DELETE_USER, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -126,10 +130,10 @@ class UserController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.USER_NOT_FOUND,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }
@@ -139,10 +143,11 @@ class UserController {
     const token = req.headers["authorization"];
 
     if (!token) {
-      return res.status(403).json({
+      console.log( ERROR_LOG.MISSING_TOKEN)
+      return res.status(STATUS_CODE.FORBIDDEN).json({
         error: true,
-        message: "Missing token or inválid token format",
-        code: StatusCode.INTERNAL_SERVER_ERROR
+        message: ERROR_LOG.MISSING_TOKEN,
+        code: STATUS_CODE.INTERNAL_SERVER_ERROR
       });
     }
 
@@ -150,7 +155,8 @@ class UserController {
       const userPayload = decodeJwt(token);
 
       if (!userPayload || !userPayload.id) {
-        throw new Error("Invalid token!");
+        console.log(ERROR_LOG.INVALID_TOKEN)
+        throw new Error(ERROR_LOG.INVALID_TOKEN);
       }
 
       const productId = req.params.productId;
@@ -158,15 +164,16 @@ class UserController {
       const result = await this.service.buyProduct(userPayload.id, productId);
 
       if (result) {
-        res.json(result);
+        res.status(STATUS_CODE.OK).json(result);
       } else {
-        res.status(400).json({ error: "Failed to buy the product." });
+        console.log(ERROR_LOG.BUY_PRODUCT)
+        res.status(STATUS_CODE.BAD_REQUEST).json({ error: ERROR_LOG.BUY_PRODUCT });
       }
     } catch (error) {
-      console.error("Error buying product:", error);
+      console.error(ERROR_LOG.BUY_PRODUCT, error);
       res
-        .status(401)
-        .json({ error: "Expired or invalid token. Please log in again." });
+        .status(STATUS_CODE.UNAUTHORIZED)
+        .json({ error: ERROR_LOG.INVALID_TOKEN });
     }
   }
 
@@ -174,10 +181,11 @@ class UserController {
     const token = req.headers["authorization"];
 
     if (!token) {
-      return res.status(403).json({
+      console.log( ERROR_LOG.MISSING_TOKEN)
+      return res.status(STATUS_CODE.FORBIDDEN).json({
         error: true,
-        message: "Missing token or inválid token format",
-        code: StatusCode.INTERNAL_SERVER_ERROR
+        message: ERROR_LOG.MISSING_TOKEN,
+        code: STATUS_CODE.INTERNAL_SERVER_ERROR
       });
     }
 
@@ -185,7 +193,8 @@ class UserController {
       const userPayload = decodeJwt(token);
 
       if (!userPayload || !userPayload.id) {
-        throw new Error("Invalid token!");
+        console.log(ERROR_LOG.INVALID_TOKEN)
+        throw new Error(ERROR_LOG.INVALID_TOKEN);
       }
 
       const productId = req.params.productId;
@@ -196,15 +205,16 @@ class UserController {
       );
 
       if (result) {
-        res.json(result);
+        res.status(STATUS_CODE.OK).json(result);
       } else {
-        res.status(400).json({ error: "Failed to add the product to favorites." });
+        console.log(ERROR_LOG.FAVORITE_PRODUCT)
+        res.status(STATUS_CODE.BAD_REQUEST).json({ error: ERROR_LOG.FAVORITE_PRODUCT });
       }
     } catch (error) {
-      console.error("Error adding product to favorites:", error);
+      console.error(ERROR_LOG.FAVORITE_PRODUCT, error);
       res
-        .status(401)
-        .json({ error: "Expired or invalid token. Please log in again." });
+        .status(STATUS_CODE.UNAUTHORIZED)
+        .json({ error: ERROR_LOG.INVALID_TOKEN });
     }
   }
 
@@ -215,10 +225,11 @@ class UserController {
     const token = req.headers["authorization"];
 
     if (!token) {
-      return res.status(403).json({
+      console.log(ERROR_LOG.MISSING_TOKEN)
+      return res.status(STATUS_CODE.FORBIDDEN).json({
         error: true,
-        message: "Missing token or inválid token format",
-        code: StatusCode.INTERNAL_SERVER_ERROR
+        message: ERROR_LOG.MISSING_TOKEN,
+        code: STATUS_CODE.INTERNAL_SERVER_ERROR
       });
     }
 
@@ -226,7 +237,8 @@ class UserController {
       const userPayload = decodeJwt(token);
 
       if (!userPayload || !userPayload.id) {
-        throw new Error("Invalid token!");
+        console.log(ERROR_LOG.INVALID_TOKEN)
+        throw new Error(ERROR_LOG.INVALID_TOKEN);
       }
 
       const productId = req.params.productId;
@@ -237,15 +249,16 @@ class UserController {
       );
 
       if (result) {
-        res.json(result);
+        res.status(STATUS_CODE.OK).json(result);
       } else {
-        res.status(400).json({ error: "Failed to remove the product from favorites." });
+        console.log(ERROR_LOG.UNFAVORITE_PRODUCT)
+        res.status(STATUS_CODE.BAD_REQUEST).json({ error: ERROR_LOG.UNFAVORITE_PRODUCT });
       }
     } catch (error) {
-      console.error("Error removing product from favorites:", error);
+      console.error(ERROR_LOG.UNFAVORITE_PRODUCT, error);
       res
-        .status(401)
-        .json({ error: "Expired or invalid token. Please log in again." });
+        .status(STATUS_CODE.UNAUTHORIZED)
+        .json({ error: ERROR_LOG.INVALID_TOKEN });
     }
   }
 }

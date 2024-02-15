@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { AuthService } from "./auth-service";
 import { AuthDTO } from "./auth-dto";
-import { CustomError } from "../shared/errors/CustomError";
-import { StatusCode } from "../utils/enums/statusCode";
+import { CustomError } from "../shared/error/CustomError";
+import { ERROR_LOG } from "../utils/enums/errorMessage";
+import { STATUS_CODE } from "../utils/enums/statusCode";
 
 export class AuthController {
   constructor(private service: AuthService) {}
@@ -11,13 +12,13 @@ export class AuthController {
     try {
       const data: AuthDTO = req.body;
       const result = await this.service.login(data);
-      res.status(200).json(result);
+      res.status(STATUS_CODE.OK).json(result);
     } catch (error) {
-      console.error("Error during login:", error);
-      res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+      console.error(ERROR_LOG.LOGIN_FAIL, error);
+      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
         error: true,
-        message: "Internal server error",
-        code: StatusCode.INTERNAL_SERVER_ERROR
+        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+        code: STATUS_CODE.INTERNAL_SERVER_ERROR
       });
     }
   }
@@ -27,18 +28,20 @@ export class AuthController {
       const authorization = req.headers["authorization"];
 
       if (!authorization) {
-        throw new CustomError("Unauthorized", StatusCode.UNAUTHORIZED);
+        console.log(ERROR_LOG.UNAUTHORIZED)
+        throw new CustomError(ERROR_LOG.UNAUTHORIZED, STATUS_CODE.UNAUTHORIZED);
       }
 
       const userInfo = await this.service.getUserInfo(authorization);
 
       if (!userInfo) {
-        throw new CustomError("Unauthorized", StatusCode.UNAUTHORIZED);
+        console.log(ERROR_LOG.UNAUTHORIZED)
+        throw new CustomError(ERROR_LOG.UNAUTHORIZED, STATUS_CODE.UNAUTHORIZED);
       }
 
-      res.json(userInfo);
+      res.status(STATUS_CODE.OK).json(userInfo);
     } catch (error) {
-      console.error("Error getting user info:", error);
+      console.error(ERROR_LOG.USER_INFO, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -46,10 +49,10 @@ export class AuthController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }

@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import ProductService from "./product-service";
 import { UpdateProductDTO, CreateProductDTO } from "./product-dto";
-import { CustomError } from "../shared/errors/CustomError";
-import { StatusCode } from "../utils/enums/statusCode";
+import { CustomError } from "../shared/error/CustomError";
+import { STATUS_CODE } from "../utils/enums/statusCode";
+import { ERROR_LOG } from "../utils/enums/errorMessage";
 
 class ProductController {
   constructor(private service: ProductService) {}
@@ -18,9 +19,9 @@ class ProductController {
       }
 
       const createdProduct = await this.service.create(data);
-      res.status(201).json(createdProduct);
+      res.status(STATUS_CODE.CREATED).json(createdProduct);
     } catch (error) {
-      console.error("Error creating product:", error);
+      console.error(ERROR_LOG.CREATE_PRODUCT, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -28,10 +29,10 @@ class ProductController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }
@@ -43,12 +44,13 @@ class ProductController {
       const product = await this.service.getById(id);
 
       if (product) {
-        res.status(200).json(product);
+        res.status(STATUS_CODE.OK).json(product);
       } else {
-        throw new CustomError("Product not found", StatusCode.NOT_FOUND);
+        console.log(ERROR_LOG.PRODUCT_NOT_FOUND)
+        throw new CustomError(ERROR_LOG.PRODUCT_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
     } catch (error) {
-      console.error("Error fetching product by ID:", error);
+      console.error(ERROR_LOG.FETCH_PRODUCT, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -56,10 +58,10 @@ class ProductController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }
@@ -68,9 +70,9 @@ class ProductController {
   async getAll(req: Request, res: Response): Promise<void> {
     try {
       const productArray = await this.service.getAll();
-      res.status(200).json(productArray);
+      res.status(STATUS_CODE.OK).json(productArray);
     } catch (error) {
-      console.error("Error fetching all products:", error);
+      console.error(ERROR_LOG.FETCH_PRODUCTS, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -78,10 +80,10 @@ class ProductController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }
@@ -101,12 +103,13 @@ class ProductController {
       const updatedProduct = await this.service.update(id, data);
 
       if (updatedProduct) {
-        res.status(200).json(updatedProduct);
+        res.status(STATUS_CODE.OK).json(updatedProduct);
       } else {
-        throw new CustomError("Product not found", StatusCode.NOT_FOUND);
+        console.log(ERROR_LOG.PRODUCT_NOT_FOUND)
+        throw new CustomError(ERROR_LOG.PRODUCT_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
     } catch (error) {
-      console.error("Error updating product:", error);
+      console.error(ERROR_LOG.UPDATE_PRODUCT, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -114,10 +117,10 @@ class ProductController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }
@@ -129,12 +132,13 @@ class ProductController {
       const deletedProduct = await this.service.softDelete(id);
 
       if (deletedProduct) {
-        res.status(200).json(deletedProduct);
+        res.status(STATUS_CODE.OK).json(deletedProduct);
       } else {
-        throw new CustomError("Product not found", StatusCode.NOT_FOUND);
+        console.log(ERROR_LOG.PRODUCT_NOT_FOUND)
+        throw new CustomError(ERROR_LOG.PRODUCT_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
     } catch (error) {
-      console.error("Error deleting product:", error);
+      console.error(ERROR_LOG.DELETE_PRODUCT, error);
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -142,10 +146,10 @@ class ProductController {
           code: error.code
         });
       } else {
-        res.status(StatusCode.INTERNAL_SERVER_ERROR).json({
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
           error: true,
-          message: "Internal server error",
-          code: StatusCode.INTERNAL_SERVER_ERROR
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
         });
       }
     }

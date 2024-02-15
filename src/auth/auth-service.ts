@@ -1,6 +1,5 @@
 import { compare } from "bcrypt";
 import { sign, verify } from "jsonwebtoken";
-import { Request } from "express";
 
 import UserRepository from "../users/user-repository";
 import AdminRepository from "../admins/admin-repository";
@@ -8,8 +7,9 @@ import { Admin } from "../admins/admin-domain";
 import { User } from "../users/user-domain";
 import { AuthDTO } from "./auth-dto";
 import { env } from "../configs/env";
-import { CustomError } from "../shared/errors/CustomError";
-
+import { CustomError } from "../shared/error/CustomError";
+import { STATUS_CODE } from "../utils/enums/statusCode";
+import { ERROR_LOG } from "../utils/enums/errorMessage";
 export class AuthService {
   constructor(private userRepository: UserRepository | AdminRepository) {}
 
@@ -17,13 +17,15 @@ export class AuthService {
     try {
       const user = await this.userRepository.findByEmail(data.email);
       if (!user) {
-        throw new CustomError("User not found.", 404);
+        console.log(ERROR_LOG.USER_NOT_FOUND)
+        throw new CustomError(ERROR_LOG.USER_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
 
       const password = data.password ?? "";
       const passwordIsValid = await compare(password, user.password);
       if (!passwordIsValid) {
-        throw new CustomError("Invalid password.", 400);
+        console.log(ERROR_LOG.INVALID_PASS)
+        throw new CustomError(ERROR_LOG.INVALID_PASS, STATUS_CODE.BAD_REQUEST);
       }
 
       const payload = {
@@ -40,8 +42,8 @@ export class AuthService {
 
       return { token };
     } catch (error) {
-      console.error("Error during login:", error);
-      throw new CustomError("Authentication failed.", 500);
+      console.error(ERROR_LOG.LOGIN_FAIL, error);
+      throw new CustomError(ERROR_LOG.LOGIN_FAIL, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -58,8 +60,8 @@ export class AuthService {
         photo: decodedToken.photo,
       };
     } catch (error) {
-      console.error("Error decoding token:", error);
-      throw new CustomError("Failed to decode token.", 500);
+      console.error(ERROR_LOG.TOKEN_DECOD_FAIL, error);
+      throw new CustomError(ERROR_LOG.TOKEN_DECOD_FAIL, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 }

@@ -3,7 +3,9 @@ import { IAdmin } from "./admin-domain";
 import { CreateAdminDTO, UpdateAdminDTO } from "./admin-dto";
 import AdminRepository from "./admin-repository";
 import UserRepository from "../users/user-repository";
-import { CustomError } from "../shared/errors/CustomError";
+import { CustomError } from "../shared/error/CustomError";
+import { ERROR_LOG } from "../utils/enums/errorMessage";
+import { STATUS_CODE } from "../utils/enums/statusCode";
 
 class AdminService {
   constructor(
@@ -15,7 +17,8 @@ class AdminService {
     try {
       const adminAlreadyExists = await this.adminRepository.findByEmail(data.email);
       if (adminAlreadyExists) {
-        throw new CustomError("Admin with this email already exists.", 400);
+        console.log(ERROR_LOG.ADM_EXISTS);
+        throw new CustomError(ERROR_LOG.ADM_EXISTS, STATUS_CODE.BAD_REQUEST);
       }
 
       const payload = {
@@ -27,8 +30,8 @@ class AdminService {
 
       return result;
     } catch (error) {
-      console.error("Error creating admin:", error);
-      throw new CustomError("Failed to create admin.", 500);
+      console.error(ERROR_LOG.CREATE_ADM, error);
+      throw new CustomError(ERROR_LOG.CREATE_ADM, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -36,8 +39,8 @@ class AdminService {
     try {
       return await this.adminRepository.findAll();
     } catch (error) {
-      console.error("Error fetching admins:", error);
-      throw new CustomError("Failed to fetch admins.", 500);
+      console.error(ERROR_LOG.FETCH_ADMS, error);
+      throw new CustomError(ERROR_LOG.FETCH_ADMS, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -45,8 +48,8 @@ class AdminService {
     try {
       return await this.adminRepository.findById(id);
     } catch (error) {
-      console.error("Error fetching admin:", error);
-      throw new CustomError("Failed to fetch admin.", 500);
+      console.error(ERROR_LOG.FETCH_ADM, error);
+      throw new CustomError(ERROR_LOG.FETCH_ADM, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -54,8 +57,8 @@ class AdminService {
     try {
       return await this.adminRepository.update(id, data);
     } catch (error) {
-      console.error("Error updating admin:", error);
-      throw new CustomError("Failed to update admin.", 500);
+      console.error(ERROR_LOG.UPDATE_ADM, error);
+      throw new CustomError(ERROR_LOG.UPDATE_ADM, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -63,8 +66,8 @@ class AdminService {
     try {
       return await this.adminRepository.softDelete(id);
     } catch (error) {
-      console.error("Error soft deleting admin:", error);
-      throw new CustomError("Failed to soft delete admin.", 500);
+      console.error(ERROR_LOG.DELETE_ADM, error);
+      throw new CustomError(ERROR_LOG.DELETE_ADM, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -76,7 +79,8 @@ class AdminService {
       const user = await this.userRepository.findById(userId);
 
       if (!user) {
-        throw new CustomError("User not found.", 404);
+        console.log(ERROR_LOG.USER_NOT_FOUND)
+        throw new CustomError(ERROR_LOG.USER_NOT_FOUND, STATUS_CODE.NOT_FOUND);
       }
 
       user.jewelsAmount += jewelsAmount;
@@ -87,8 +91,8 @@ class AdminService {
 
       return true;
     } catch (error) {
-      console.error("Error updating user jewels:", error);
-      throw new CustomError("Failed to update user jewels.", 500);
+      console.error(ERROR_LOG.UPDATE_JEWELS, error);
+      throw new CustomError(ERROR_LOG.UPDATE_JEWELS, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
   }
 }
