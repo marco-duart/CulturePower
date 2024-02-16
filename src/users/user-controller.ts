@@ -5,14 +5,16 @@ import { CustomError } from "../shared/error/CustomError";
 import { STATUS_CODE } from "../utils/enums/statusCode";
 import { ERROR_LOG } from "../utils/enums/errorMessage";
 import { decodeJwt } from "../utils/jwt-utils";
+import fs from "fs";
 
 class UserController {
   constructor(private service: UserService) {}
 
   async create(req: Request, res: Response): Promise<void> {
+    let photoPath: string | undefined;
     try {
       const data: CreateUserDTO = req.body;
-      const photoPath = req.file?.path;
+      photoPath = req.file?.path;
 
       if (photoPath) {
         const fileName = photoPath.split("\\").pop();
@@ -23,11 +25,28 @@ class UserController {
       res.status(STATUS_CODE.CREATED).json(createdUser);
     } catch (error) {
       console.error(ERROR_LOG.CREATE_USER, error);
-      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
-        error: true,
-        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
-        code: STATUS_CODE.INTERNAL_SERVER_ERROR
-      });
+      
+      if (photoPath) {
+        fs.unlink(photoPath, (err) => {
+          if (err) {
+            console.error(ERROR_LOG.DELETE_PREV_IMG, err);
+          }
+        });
+      }
+
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
@@ -66,19 +85,28 @@ class UserController {
       res.status(STATUS_CODE.OK).json(userArray);
     } catch (error) {
       console.error(ERROR_LOG.FETCH_USERS, error);
-      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
-        error: true,
-        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
-        code: STATUS_CODE.INTERNAL_SERVER_ERROR
-      });
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
   async update(req: Request, res: Response): Promise<void> {
+    let photoPath: string | undefined;
     try {
       const id: string = req.params.id;
       const data: UpdateUserDTO = req.body;
-      const photoPath = req.file?.path;
+      photoPath = req.file?.path;
 
       if (photoPath) {
         data.photo = photoPath;
@@ -94,6 +122,15 @@ class UserController {
       }
     } catch (error) {
       console.error(ERROR_LOG.UPDATE_USER, error);
+
+      if (photoPath) {
+        fs.unlink(photoPath, (err) => {
+          if (err) {
+            console.error(ERROR_LOG.DELETE_PREV_IMG, err);
+          }
+        });
+      }
+      
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -171,9 +208,16 @@ class UserController {
       }
     } catch (error) {
       console.error(ERROR_LOG.BUY_PRODUCT, error);
-      res
-        .status(STATUS_CODE.UNAUTHORIZED)
-        .json({ error: ERROR_LOG.INVALID_TOKEN });
+      if (error instanceof CustomError) {
+        res
+          .status(error.code)
+          .json({ error: true, message: error.message, code: error.code });
+      } else {
+        res.status(STATUS_CODE.UNAUTHORIZED).json({
+          error: true,
+          message: ERROR_LOG.INVALID_TOKEN
+        });
+      }
     }
   }
 
@@ -212,9 +256,16 @@ class UserController {
       }
     } catch (error) {
       console.error(ERROR_LOG.FAVORITE_PRODUCT, error);
-      res
-        .status(STATUS_CODE.UNAUTHORIZED)
-        .json({ error: ERROR_LOG.INVALID_TOKEN });
+      if (error instanceof CustomError) {
+        res
+          .status(error.code)
+          .json({ error: true, message: error.message, code: error.code });
+      } else {
+        res.status(STATUS_CODE.UNAUTHORIZED).json({
+          error: true,
+          message: ERROR_LOG.INVALID_TOKEN
+        });
+      }
     }
   }
 
@@ -256,9 +307,16 @@ class UserController {
       }
     } catch (error) {
       console.error(ERROR_LOG.UNFAVORITE_PRODUCT, error);
-      res
-        .status(STATUS_CODE.UNAUTHORIZED)
-        .json({ error: ERROR_LOG.INVALID_TOKEN });
+      if (error instanceof CustomError) {
+        res
+          .status(error.code)
+          .json({ error: true, message: error.message, code: error.code });
+      } else {
+        res.status(STATUS_CODE.UNAUTHORIZED).json({
+          error: true,
+          message: ERROR_LOG.INVALID_TOKEN
+        });
+      }
     }
   }
 }

@@ -4,14 +4,16 @@ import { UpdateProductDTO, CreateProductDTO } from "./product-dto";
 import { CustomError } from "../shared/error/CustomError";
 import { STATUS_CODE } from "../utils/enums/statusCode";
 import { ERROR_LOG } from "../utils/enums/errorMessage";
+import fs from "fs";
 
 class ProductController {
   constructor(private service: ProductService) {}
 
   async create(req: Request, res: Response): Promise<void> {
+    let photoPath: string | undefined;
     try {
       const data: CreateProductDTO = req.body;
-      const photoPath = req.file?.path;
+      photoPath = req.file?.path;
 
       if (photoPath) {
         const fileName = photoPath.split("\\").pop();
@@ -22,6 +24,15 @@ class ProductController {
       res.status(STATUS_CODE.CREATED).json(createdProduct);
     } catch (error) {
       console.error(ERROR_LOG.CREATE_PRODUCT, error);
+       
+      if (photoPath) {
+        fs.unlink(photoPath, (err) => {
+          if (err) {
+            console.error(ERROR_LOG.DELETE_PREV_IMG, err);
+          }
+        });
+      }
+
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,
@@ -90,10 +101,11 @@ class ProductController {
   }
 
   async update(req: Request, res: Response): Promise<void> {
+    let photoPath: string | undefined;
     try {
       const id: string = req.params.id;
       const data: UpdateProductDTO = req.body;
-      const photoPath = req.file?.path;
+      photoPath = req.file?.path;
 
       if (photoPath) {
         const fileName = photoPath.split("\\").pop();
@@ -110,6 +122,15 @@ class ProductController {
       }
     } catch (error) {
       console.error(ERROR_LOG.UPDATE_PRODUCT, error);
+
+      if (photoPath) {
+        fs.unlink(photoPath, (err) => {
+          if (err) {
+            console.error(ERROR_LOG.DELETE_PREV_IMG, err);
+          }
+        });
+      }
+      
       if (error instanceof CustomError) {
         res.status(error.code).json({
           error: true,

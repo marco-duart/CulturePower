@@ -15,11 +15,19 @@ export class AuthController {
       res.status(STATUS_CODE.OK).json(result);
     } catch (error) {
       console.error(ERROR_LOG.LOGIN_FAIL, error);
-      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
-        error: true,
-        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
-        code: STATUS_CODE.INTERNAL_SERVER_ERROR
-      });
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 

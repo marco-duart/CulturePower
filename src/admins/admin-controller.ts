@@ -15,11 +15,19 @@ class AdminController {
       res.status(STATUS_CODE.CREATED).json(createdAdmin);
     } catch (error) {
       console.error(ERROR_LOG.CREATE_ADM, error);
-      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
-        error: true,
-        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
-        code: STATUS_CODE.INTERNAL_SERVER_ERROR
-      });
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 
@@ -58,11 +66,19 @@ class AdminController {
       res.status(STATUS_CODE.OK).json(adminArray);
     } catch (error) {
       console.error(ERROR_LOG.FETCH_ADMS, error);
-      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
-        error: true,
-        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
-        code: STATUS_CODE.INTERNAL_SERVER_ERROR
-      });
+      if (error instanceof CustomError) {
+        res.status(error.code).json({
+          error: true,
+          message: error.message,
+          code: error.code
+        });
+      } else {
+        res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+          error: true,
+          message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+          code: STATUS_CODE.INTERNAL_SERVER_ERROR
+        });
+      }
     }
   }
 

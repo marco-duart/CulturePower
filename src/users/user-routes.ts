@@ -2,6 +2,7 @@ import { Router } from "express";
 import { UserModule } from "./index";
 import { logMiddleware } from "../shared/middlewares/logMiddleware";
 import { authenticateUserMiddleware } from "../shared/middlewares/authenticateUserMiddleware";
+import { authorizeAdminMiddleware } from "../shared/middlewares/authorizeAdminMiddleware";
 import { createUserMiddleware } from "../shared/middlewares/userMiddleware";
 import uploadMiddleware from "../shared/middlewares/uploadMiddleware";
 
@@ -15,8 +16,8 @@ userRoutes.post(
   uploadMiddleware.single("photo"),
   controller.create.bind(controller)
 );
-userRoutes.get("/user/:id", logMiddleware, controller.getById.bind(controller));
-userRoutes.get("/user", logMiddleware, controller.getAll.bind(controller));
+userRoutes.get("/user/:id", logMiddleware, authorizeAdminMiddleware, controller.getById.bind(controller));
+userRoutes.get("/user", logMiddleware, authorizeAdminMiddleware, controller.getAll.bind(controller));
 userRoutes.patch(
   "/user/:id",
   logMiddleware,
