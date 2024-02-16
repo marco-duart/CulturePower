@@ -7,8 +7,6 @@ export async function createProductMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  const { body } = req;
-
   try {
     const validateData: schema.ICreateProduct =
       await schema.createProductValidate.validate(req.body, {
@@ -31,8 +29,6 @@ export async function updateProductProductsMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  const { body } = req;
-
   try {
     const validateData: schema.IUpdateProduct =
       await schema.updateProductValidate.validate(req.body, {

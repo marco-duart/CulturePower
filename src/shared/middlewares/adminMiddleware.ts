@@ -7,8 +7,6 @@ export async function createAdminMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  const { body } = req;
-
   try {
     const validateData: ICreateAdmin = await createAdminValidate.validate(
       req.body,

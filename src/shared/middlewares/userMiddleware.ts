@@ -7,8 +7,6 @@ export async function createUserMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  const { body } = req;
-
   try {
     const validateData: schema.ICreateUser =
       await schema.createUserValidate.validate(req.body, { abortEarly: false });

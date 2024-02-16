@@ -7,8 +7,6 @@ export async function authValidateMiddleware(
   res: Response,
   next: NextFunction
 ) {
-  const { body } = req;
-
   try {
     const validateData: IUserLogin = await userLoginValidate.validate(
       req.body,
