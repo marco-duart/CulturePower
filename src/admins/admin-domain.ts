@@ -4,6 +4,9 @@ export interface IAdmin extends Document {
   name: string;
   email: string;
   password: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 }
 
 const AdminSchema = new Schema(

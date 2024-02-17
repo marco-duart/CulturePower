@@ -16,6 +16,15 @@ export interface UpdateProductDTO {
   photo: string;
 }
 
+export interface IProduct {
+  _id: string;
+  name: string;
+  value: number;
+  amount: number;
+  description: string;
+  photo: string;
+}
+
 export interface ICreateProduct {
   name: string;
   value: string;

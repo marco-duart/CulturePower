@@ -10,6 +10,10 @@ class ProductService {
   constructor(private repository: ProductRepository) {}
 
   async create(data: CreateProductDTO): Promise<IProduct> {
+    if (data?.value === undefined || data?.amount === undefined || data?.value < 0 || data?.amount < 0) {
+      console.log(ERROR_LOG.CREATE_PRODUCT)
+      throw new CustomError(ERROR_LOG.CREATE_PRODUCT, STATUS_CODE.INTERNAL_SERVER_ERROR);
+    }
     const result = await this.repository.create(data);
     return result;
   }
@@ -37,8 +41,13 @@ class ProductService {
 
     if (currentProduct.photo && data.photo) {
       const fileName = currentProduct.photo.split("/").pop();
-      if (fileName) {
-        fs.unlinkSync(`uploads/${fileName}`);
+      try {
+        if (fileName) {
+          fs.unlinkSync(`uploads/${fileName}`);
+        }
+      } catch (error) {
+        console.error(ERROR_LOG.DELETE_IMG, error);
+        throw new CustomError(ERROR_LOG.DELETE_IMG, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     }
 

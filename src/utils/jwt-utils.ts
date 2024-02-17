@@ -1,5 +1,8 @@
 import { JwtPayload, verify, VerifyErrors } from "jsonwebtoken";
 import { env } from "../configs/env";
+import { CustomError } from "../shared/error/CustomError";
+import { ERROR_LOG } from "./enums/errorMessage";
+import { STATUS_CODE } from "./enums/statusCode";
 
 interface CustomJwtPayload extends JwtPayload {
   id: string;
@@ -18,9 +21,9 @@ export function decodeJwt(token: string): CustomJwtPayload | null {
     const verificationError = error as VerifyErrors;
 
     if (verificationError.name === "TokenExpiredError") {
-      //Vou fazer um retorno pro front entender a necessidade de redirect to login?
+      throw new CustomError(ERROR_LOG.EXPIRED_TOKEN, STATUS_CODE.UNAUTHORIZED);
+    } else {
+      throw new CustomError(ERROR_LOG.TOKEN_DECOD_FAIL, STATUS_CODE.INTERNAL_SERVER_ERROR);
     }
-
-    return null;
   }
 }

@@ -50,8 +50,13 @@ class UserService {
 
     if (currentUser && currentUser.photo && data.photo) {
       const fileName = currentUser.photo.split("/").pop();
-      if (fileName) {
-        fs.unlinkSync(`uploads/${fileName}`);
+      try {
+        if (fileName) {
+          fs.unlinkSync(`uploads/${fileName}`);
+        }
+      } catch (error) {
+        console.error(ERROR_LOG.DELETE_IMG, error);
+        throw new CustomError(ERROR_LOG.DELETE_IMG, STATUS_CODE.INTERNAL_SERVER_ERROR);
       }
     }
 
@@ -131,7 +136,7 @@ class UserService {
 
     if (user.favoriteProducts.includes(product._id)) {
       console.log(ERROR_LOG.ALREADY_FAVORITE)
-      return user;
+      throw new CustomError(ERROR_LOG.ALREADY_FAVORITE, STATUS_CODE.BAD_REQUEST);
     }
 
     user.favoriteProducts.push(product._id);
@@ -158,7 +163,7 @@ class UserService {
 
     if (index === -1) {
       console.log(ERROR_LOG.EMPTY_FAVORITES)
-      return user;
+      throw new CustomError(ERROR_LOG.EMPTY_FAVORITES, STATUS_CODE.BAD_REQUEST);
     }
 
     user.favoriteProducts.splice(index, 1);

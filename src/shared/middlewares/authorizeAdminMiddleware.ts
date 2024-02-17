@@ -28,6 +28,7 @@ export function authorizeAdminMiddleware(
     ) {
       throw new CustomError(ERROR_LOG.NOT_AN_ADMIN, STATUS_CODE.FORBIDDEN);
     }
+    next();
   } catch (error) {
     console.error(error);
     if (error instanceof CustomError) {
@@ -44,6 +45,4 @@ export function authorizeAdminMiddleware(
       });
     }
   }
-
-  next();
 }
