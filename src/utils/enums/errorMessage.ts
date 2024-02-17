@@ -7,6 +7,8 @@ export enum ERROR_LOG {
     TOKEN_DECOD_FAIL = "Error decoding token:",
     MISSING_TOKEN = "Missing token or inválid token format",
     INVALID_TOKEN = "Invalid token",
+    EXPIRED_TOKEN = "Expired token",
+    NOT_AN_ADMIN = "Not an admin",
     ADM_NOT_FOUND = "Admin not found",
     CREATE_ADM = "Error creating admin:",
     ADM_EXISTS = "Admin with this email already exists",

@@ -15,6 +15,7 @@ productRoutes.post(
   logMiddleware,
   authorizeAdminMiddleware,
   uploadMiddleware.single("photo"),
+  createProductMiddleware,
   controller.create.bind(controller)
 );
 productRoutes.get(

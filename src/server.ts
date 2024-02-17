@@ -7,10 +7,8 @@ import { productRoutes } from "./products/product-routes";
 import path from "path";
 
 const app = express();
-
-app.use(express.static(path.join(__dirname, "../uploads")));
-
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "../uploads")));
 
 app.use(authRoutes);
 app.use(userRoutes);

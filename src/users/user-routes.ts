@@ -14,6 +14,7 @@ userRoutes.post(
   "/user",
   logMiddleware,
   uploadMiddleware.single("photo"),
+  createUserMiddleware,
   controller.create.bind(controller)
 );
 userRoutes.get("/user/:id", logMiddleware, authorizeAdminMiddleware, controller.getById.bind(controller));

@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { verify } from "jsonwebtoken";
 import { env } from "../../configs/env";
+import { CustomError } from "../error/CustomError";
+import { STATUS_CODE } from "../../utils/enums/statusCode";
+import { ERROR_LOG } from "../../utils/enums/errorMessage";
 
 export function authorizeAdminMiddleware(
   req: Request,
@@ -10,11 +13,7 @@ export function authorizeAdminMiddleware(
   const authorization = req.headers["authorization"];
 
   if (!authorization) {
-    return res.status(401).json({
-      error: true,
-      message: "Unauthorized",
-      status: 401,
-    });
+    throw new CustomError(ERROR_LOG.MISSING_TOKEN, STATUS_CODE.UNAUTHORIZED);
   }
 
   const token = authorization.replace("Bearer ", "");
@@ -27,18 +26,23 @@ export function authorizeAdminMiddleware(
       !decodedToken.hasOwnProperty("role") ||
       decodedToken.role !== "admin"
     ) {
-      return res.status(403).json({
-        error: true,
-        message: "Forbidden - Not an admin",
-        status: 403,
-      });
+      throw new CustomError(ERROR_LOG.NOT_AN_ADMIN, STATUS_CODE.FORBIDDEN);
     }
   } catch (error) {
-    return res.status(401).json({
-      error: true,
-      message: "Unauthorized",
-      status: 401,
-    });
+    console.error(error);
+    if (error instanceof CustomError) {
+      res.status(error.code).json({
+        error: true,
+        message: error.message,
+        code: error.code
+      });
+    } else {
+      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+        error: true,
+        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+        code: STATUS_CODE.INTERNAL_SERVER_ERROR
+      });
+    }
   }
 
   next();

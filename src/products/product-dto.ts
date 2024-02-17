@@ -15,3 +15,14 @@ export interface UpdateProductDTO {
   description: string;
   photo: string;
 }
+
+export interface ICreateProduct {
+  name: string;
+  value: string;
+  amount: string;
+  description: string;
+}
+
+export interface IUpdateProduct {
+  productId: string;
+}

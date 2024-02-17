@@ -1,47 +1,50 @@
 import { NextFunction, Request, Response } from "express";
-import * as schema from "../../products/product-schemas";
-import * as yup from "yup";
+import { ICreateProduct } from "../../products/product-dto";
+import { CustomError } from "../error/CustomError";
+import { FIELD_MISSING } from "../../utils/enums/fieldMissing";
+import { STATUS_CODE } from "../../utils/enums/statusCode";
+import { ERROR_LOG } from "../../utils/enums/errorMessage";
 
 export async function createProductMiddleware(
-  req: Request<{}, {}, schema.ICreateProduct>,
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const validateData: schema.ICreateProduct =
-      await schema.createProductValidate.validate(req.body, {
-        abortEarly: false,
-      });
-    console.log("All required fields are present!");
-    next();
-  } catch (error) {
-    const yupError = error as yup.ValidationError;
-    return res.status(400).json({
-      errors: {
-        default: yupError.message,
-      },
-    });
-  }
-}
+    const { name, value, amount, description } = req.body as ICreateProduct;
 
-export async function updateProductProductsMiddleware(
-  req: Request<{}, {}, schema.IUpdateProduct>,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const validateData: schema.IUpdateProduct =
-      await schema.updateProductValidate.validate(req.body, {
-        abortEarly: false,
-      });
-    console.log("All required fields are present!");
+    if (!name) {
+      throw new CustomError(FIELD_MISSING.NAME, STATUS_CODE.BAD_REQUEST);
+    }
+    if (!value) {
+      throw new CustomError(FIELD_MISSING.VALUE, STATUS_CODE.BAD_REQUEST);
+    }
+    if (!amount) {
+      throw new CustomError(FIELD_MISSING.AMOUNT, STATUS_CODE.BAD_REQUEST);
+    }
+    if (!description) {
+      throw new CustomError(FIELD_MISSING.DESCRIPTION, STATUS_CODE.BAD_REQUEST);
+    }
+    if (!req.file) {
+      throw new CustomError(FIELD_MISSING.PHOTO, STATUS_CODE.BAD_REQUEST);
+    }
+
+    console.log("All required fields are present");
     next();
   } catch (error) {
-    const yupError = error as yup.ValidationError;
-    return res.status(400).json({
-      errors: {
-        default: yupError.message,
-      },
-    });
+    console.error(error);
+    if (error instanceof CustomError) {
+      res.status(error.code).json({
+        error: true,
+        message: error.message,
+        code: error.code
+      });
+    } else {
+      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+        error: true,
+        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+        code: STATUS_CODE.INTERNAL_SERVER_ERROR
+      });
+    }
   }
 }

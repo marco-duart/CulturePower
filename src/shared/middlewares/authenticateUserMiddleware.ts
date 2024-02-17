@@ -1,10 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { JwtPayload, verify, VerifyErrors } from "jsonwebtoken";
+import { verify, VerifyErrors } from "jsonwebtoken";
 import { env } from "../../configs/env";
-
-interface AuthenticatedRequest extends Request {
-  user?: JwtPayload;
-}
+import { CustomError } from "../error/CustomError";
+import { STATUS_CODE } from "../../utils/enums/statusCode";
+import { ERROR_LOG } from "../../utils/enums/errorMessage";
 
 export function authenticateUserMiddleware(
   req: Request,
@@ -14,11 +13,7 @@ export function authenticateUserMiddleware(
   const authorizationHeader = req.headers["authorization"];
 
   if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
-    return res.status(401).json({
-      error: true,
-      message: "Unauthorized - Token não fornecido ou formato inválido",
-      status: 401,
-    });
+    throw new CustomError(ERROR_LOG.MISSING_TOKEN, STATUS_CODE.UNAUTHORIZED);
   }
 
   const token = authorizationHeader.replace("Bearer ", "");
@@ -28,20 +23,30 @@ export function authenticateUserMiddleware(
 
     next();
   } catch (error) {
-    const verificationError = error as VerifyErrors;
+    console.error(error);
 
+    const verificationError = error as VerifyErrors;
+    
     if (verificationError.name === "TokenExpiredError") {
-      return res.status(401).json({
+      return res.status(STATUS_CODE.UNAUTHORIZED).json({
         error: true,
-        message: "Unauthorized - Token expirado",
-        status: 401,
+        message: ERROR_LOG.EXPIRED_TOKEN,
+        status: STATUS_CODE.UNAUTHORIZED,
       });
     }
 
-    return res.status(401).json({
-      error: true,
-      message: "Unauthorized - Token inválido",
-      status: 401,
-    });
+    if (error instanceof CustomError) {
+      res.status(error.code).json({
+        error: true,
+        message: error.message,
+        code: error.code
+      });
+    } else {
+      res.status(STATUS_CODE.INTERNAL_SERVER_ERROR).json({
+        error: true,
+        message: ERROR_LOG.INTERNAL_SERVER_ERROR,
+        code: STATUS_CODE.INTERNAL_SERVER_ERROR
+      });
+    }
   }
 }

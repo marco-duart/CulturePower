@@ -11,3 +11,9 @@ export interface UpdateAdminDTO {
   email: string;
   password: string;
 }
+
+export interface ICreateAdmin {
+  name: string;
+  email: string;
+  password: string;
+}
