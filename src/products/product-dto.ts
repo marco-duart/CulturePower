@@ -1,5 +1,3 @@
-export interface GetProductDTO {}
-
 export interface CreateProductDTO {
   name: string;
   value: number;
