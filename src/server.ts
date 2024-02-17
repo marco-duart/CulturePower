@@ -1,5 +1,4 @@
 import express from "express";
-import "./shared/translate/TranslationsYup";
 import { authRoutes } from "./auth/auth-routes";
 import { userRoutes } from "./users/user-routes";
 import { adminRoutes } from "./admins/admin-routes";
